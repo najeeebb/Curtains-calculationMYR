@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curtain Calculator Pro</title>
+
+<style>
+body {font-family: Arial; background:#f5f5f5; margin:0; padding:15px;}
+.container {max-width:420px; margin:auto; background:#fff; padding:20px; border-radius:12px;}
+h2 {text-align:center;}
+input, select {
+    width:100%; padding:10px; margin:8px 0;
+    border-radius:8px; border:1px solid #ccc;
+}
+button {
+    width:100%; padding:12px;
+    background:#007bff; color:white;
+    border:none; border-radius:8px;
+    font-size:16px;
+}
+.result {
+    margin-top:15px;
+    background:#eef;
+    padding:12px;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>🧾 Curtain Calculator</h2>
+
+<label>Width (inches)</label>
+<input type="number" id="width">
+
+<label>Height (inches)</label>
+<input type="number" id="height">
+
+<label>Design</label>
+<select id="design" onchange="toggleEyelet()">
+<option value="sfold">S Fold</option>
+<option value="pleat">Pleated</option>
+<option value="eyelet">Eyelet</option>
+</select>
+
+<label>Layer</label>
+<select id="layer">
+<option value="single">Single</option>
+<option value="dual">Dual</option>
+</select>
+
+<div id="eyeletBox" style="display:none;">
+<label>Pieces (Eyelet only)</label>
+<select id="pieces">
+<option>3</option><option>4</option><option>5</option><option>6</option>
+<option>7</option><option>8</option><option>9</option><option>10</option>
+<option>11</option><option>12</option>
+</select>
+</div>
+
+<label>Main Fabric Price (RM/m)</label>
+<select id="fabricPrice">
+<option>13</option><option>14</option><option>15</option>
+<option>16</option><option>18</option><option>20</option>
+</select>
+
+<label>Day Curtain Price (RM/m)</label>
+<select id="dayPrice">
+<option>6</option><option>7</option><option>8</option>
+<option>9</option><option>10</option><option>11</option>
+<option>12</option><option>13</option><option>14</option>
+<option>15</option>
+</select>
+
+<button onclick="calc()">Calculate</button>
+
+<div class="result" id="result">Enter values...</div>
+</div>
+
+<script>
+function toggleEyelet(){
+    let d = document.getElementById("design").value;
+    document.getElementById("eyeletBox").style.display = (d==="eyelet")?"block":"none";
+}
+
+function roundAdjust(n){
+    while(n%4!==0){n++;}
+    return n;
+}
+
+function calc(){
+    let L = parseFloat(document.getElementById("width").value);
+    let design = document.getElementById("design").value;
+    let layer = document.getElementById("layer").value;
+    let price = parseFloat(document.getElementById("fabricPrice").value);
+    let dayPrice = parseFloat(document.getElementById("dayPrice").value);
+
+    let fabric=0, dayFabric=0, rail=0, tailoring=0, extra=0;
+
+    // ===== S FOLD =====
+    if(design==="sfold"){
+        let base = (L/5)*3;
+        base = roundAdjust(base);
+        let totalInch = (base*5)+16;
+        fabric = totalInch/39;
+
+        let mainCost = fabric * price;
+
+        if(layer==="dual"){
+            dayFabric = (L*2.4)/39;
+        }
+
+        rail = (L/12)*8;
+        if(layer==="dual"){
+            rail += (L/12)*3;
+        }
+
+        tailoring = (layer==="dual")?40:20;
+
+        var total = mainCost + (dayFabric*dayPrice) + rail + tailoring;
+    }
+
+    // ===== PLEAT =====
+    if(design==="pleat"){
+        fabric = (L*2.4)/39;
+        let mainCost = fabric * price;
+
+        rail = (L/12)*3;
+        if(layer==="dual"){
+            rail += (L/12)*3;
+        }
+
+        tailoring = (layer==="dual")?40:20;
+        extra = 20;
+
+        if(layer==="dual"){
+            dayFabric = (L*2.4)/39;
+        }
+
+        var total = mainCost + (dayFabric*dayPrice) + rail + tailoring + extra;
+    }
+
+    // ===== EYELET =====
+    if(design==="eyelet"){
+        let pieces = parseInt(document.getElementById("pieces").value);
+        fabric = pieces * 1.5;
+        let mainCost = fabric * price;
+
+        rail = (L/12)*7;
+
+        if(layer==="dual"){
+            rail += (L/12)*7 + (L/12)*3;
+        }
+
+        tailoring = (layer==="dual")?40:20;
+        extra = 30;
+
+        var total = mainCost + rail + tailoring + extra;
+    }
+
+    document.getElementById("result").innerHTML =
+    "Fabric (Main): "+fabric.toFixed(2)+" m<br>"+
+    "Day Fabric: "+dayFabric.toFixed(2)+" m<br>"+
+    "Rail Cost: RM "+rail.toFixed(2)+"<br>"+
+    "Tailoring: RM "+tailoring+"<br>"+
+    "Extras: RM "+extra+"<br><br>"+
+    "<b>Total: RM "+total.toFixed(2)+"</b>";
+}
+</script>
+
+</body>
+</html>
